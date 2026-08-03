@@ -173,6 +173,93 @@ button {
   padding: 18px;
 }
 
+.sync-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 14px;
+}
+
+.sync-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.sync-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--muted);
+  box-shadow: 0 0 0 4px rgba(168, 176, 186, 0.08);
+}
+
+.sync-dot.saved {
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgba(110, 231, 183, 0.1);
+}
+
+.sync-dot.loading,
+.sync-dot.syncing {
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(125, 211, 252, 0.1);
+}
+
+.sync-dot.error,
+.sync-error {
+  color: var(--red) !important;
+}
+
+.sync-form {
+  display: grid;
+  gap: 8px;
+}
+
+.sync-form input,
+.sync-form button,
+.sync-signout {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--foreground);
+}
+
+.sync-form button,
+.sync-signout {
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.sync-form button:hover,
+.sync-signout:hover {
+  border-color: rgba(125, 211, 252, 0.48);
+  background: rgba(125, 211, 252, 0.12);
+}
+
+.sync-form button:disabled,
+.sync-signout:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.sync-email {
+  color: var(--foreground) !important;
+  font-weight: 700;
+}
+
 .side-card strong {
   display: block;
   margin: 10px 0;

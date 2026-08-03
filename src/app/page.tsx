@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { CloudSyncControl } from "@/components/cloud-sync-control";
+import { useCloudFinance } from "@/hooks/use-cloud-finance";
 import {
   calculateInvoiceSubtotal,
   calculateInvoiceTax,
@@ -13,9 +15,7 @@ import {
   formatDate,
   getDashboardSummary,
   getExpenses,
-  getInitialFinanceState,
   getInvoices,
-  persistFinanceState,
   updateExpense,
   updateInvoice,
 } from "@/lib/finance-service";
@@ -82,17 +82,23 @@ const emptyExpense = (): Expense => ({
 });
 
 export default function Home() {
-  const [state, setState] = useState<FinanceState>(() => getInitialFinanceState());
+  const {
+    state,
+    setState,
+    session,
+    authReady,
+    configured,
+    syncStatus,
+    syncError,
+    lastSyncedAt,
+    migratedLocalData,
+  } = useCloudFinance();
   const [activeView, setActiveView] = useState<View>("dashboard");
   const [invoiceFilter, setInvoiceFilter] = useState<InvoiceStatus | "all">("all");
   const [expenseFilter, setExpenseFilter] = useState<ExpenseCategory | "all">("all");
   const [search, setSearch] = useState("");
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>("");
   const [selectedExpenseId, setSelectedExpenseId] = useState<string>("");
-
-  useEffect(() => {
-    persistFinanceState(state);
-  }, [state]);
 
   const invoices = getInvoices(state);
   const expenses = getExpenses(state);
@@ -158,6 +164,15 @@ export default function Home() {
             </button>
           ))}
         </nav>
+        <CloudSyncControl
+          authReady={authReady}
+          configured={configured}
+          lastSyncedAt={lastSyncedAt}
+          migratedLocalData={migratedLocalData}
+          session={session}
+          syncError={syncError}
+          syncStatus={syncStatus}
+        />
         <div className="side-card">
           <span>Monthly balance</span>
           <strong>{formatCurrency(summary.monthlyBalance)}</strong>
@@ -168,7 +183,9 @@ export default function Home() {
       <section className="workspace">
         <header className="topbar">
           <div>
-            <p className="eyebrow">INR · Local storage · Supabase-ready</p>
+            <p className="eyebrow">
+              {session ? "INR · Supabase sync · RLS protected" : "INR · Local-first · Cloud-ready"}
+            </p>
             <h1>{activeView === "dashboard" ? "Money, invoices, and expense flow." : activeView}</h1>
           </div>
           <div className="topbar-actions">
@@ -210,8 +227,8 @@ export default function Home() {
                 <p className="eyebrow">Personal runway</p>
                 <h2>{summary.monthlyBalance >= 0 ? "Healthy positive flow" : "Watch the monthly burn"}</h2>
                 <p>
-                  Ledgerly keeps personal expenses and small invoices in one tidy cockpit. The mock repository
-                  can be swapped for Supabase when the project grows.
+                  Ledgerly keeps personal expenses and small invoices in one tidy cockpit. Records work locally
+                  and sync to a private Supabase workspace after passwordless sign-in.
                 </p>
               </div>
               <div className="balance-ring">

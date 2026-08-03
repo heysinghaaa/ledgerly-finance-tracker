@@ -9,6 +9,9 @@ import type {
 
 const STORAGE_KEY = "ledgerly-finance-state";
 
+const getStorageKey = (userId?: string) =>
+  userId ? `${STORAGE_KEY}:user:${userId}` : `${STORAGE_KEY}:anonymous`;
+
 const moneyFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",
   currency: "INR",
@@ -44,29 +47,46 @@ export function calculateInvoiceTotal(invoice: Invoice) {
   return Math.max(subtotal + tax - invoice.discount, 0);
 }
 
-export function getInitialFinanceState(): FinanceState {
+export function getStoredFinanceState(userId?: string): FinanceState | null {
   if (typeof window === "undefined") {
-    return initialFinanceState;
+    return null;
   }
 
-  const stored = window.localStorage.getItem(STORAGE_KEY);
+  const scopedKey = getStorageKey(userId);
+  const stored = window.localStorage.getItem(scopedKey);
   if (!stored) {
-    return initialFinanceState;
+    const legacyState = !userId ? window.localStorage.getItem(STORAGE_KEY) : null;
+    if (!legacyState) {
+      return null;
+    }
+
+    try {
+      const parsedLegacyState = JSON.parse(legacyState) as FinanceState;
+      window.localStorage.setItem(scopedKey, legacyState);
+      window.localStorage.removeItem(STORAGE_KEY);
+      return parsedLegacyState;
+    } catch {
+      return null;
+    }
   }
 
   try {
     return JSON.parse(stored) as FinanceState;
   } catch {
-    return initialFinanceState;
+    return null;
   }
 }
 
-export function persistFinanceState(state: FinanceState) {
+export function getInitialFinanceState(userId?: string): FinanceState {
+  return getStoredFinanceState(userId) ?? initialFinanceState;
+}
+
+export function persistFinanceState(state: FinanceState, userId?: string) {
   if (typeof window === "undefined") {
     return;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  window.localStorage.setItem(getStorageKey(userId), JSON.stringify(state));
 }
 
 export function getInvoices(state: FinanceState) {
