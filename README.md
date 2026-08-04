@@ -2,6 +2,10 @@
 
 Ledgerly is a polished personal invoice and expense tracker built with Next.js, React, TypeScript, and Supabase.
 
+## Live Demo
+
+[Open Ledgerly](https://ledgerly-finance-tracker.vercel.app/)
+
 ## Features
 
 - Dashboard for paid income, tracked expenses, unpaid invoices, and monthly balance.
