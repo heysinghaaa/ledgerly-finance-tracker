@@ -1,5 +1,6 @@
 import type { FinanceState } from "./types";
 import { getSupabaseBrowserClient } from "./supabase-client";
+import { normalizeFinanceState } from "./finance-service";
 
 type StoredFinanceState = {
   state: unknown;
@@ -40,7 +41,7 @@ export async function loadOrCreateCloudFinanceState(
     }
 
     return {
-      state: data.state,
+      state: normalizeFinanceState(data.state),
       migrated: false,
       updatedAt: data.updated_at,
     };
@@ -60,6 +61,16 @@ export async function saveCloudFinanceState(userId: string, state: FinanceState)
     throw new Error("Supabase is not configured.");
   }
 
+  const { data: syncedAt, error: syncError } = await client.rpc("sync_finance_state", {
+    p_state: state,
+  });
+
+  if (!syncError && typeof syncedAt === "string") {
+    return syncedAt;
+  }
+
+  // Backward-compatible fallback while an existing Supabase project is waiting
+  // for the normalized schema migration in supabase/schema.sql to be applied.
   const { data, error } = await client
     .from("finance_states")
     .upsert({ user_id: userId, state }, { onConflict: "user_id" })

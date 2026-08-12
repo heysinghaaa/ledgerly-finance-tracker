@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
+import { NotificationProvider } from "@/components/notifications";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>{children}</body>
+      <body><NotificationProvider>{children}</NotificationProvider></body>
     </html>
   );
 }
