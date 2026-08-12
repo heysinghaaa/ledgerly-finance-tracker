@@ -9,6 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^9.3.1",
+    "@mui/material-nextjs": "^9.3.0",
     "@supabase/supabase-js": "^2.111.0",
     "geist": "^1.7.2",
     "jspdf": "^4.2.1",

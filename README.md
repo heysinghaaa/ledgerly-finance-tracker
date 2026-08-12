@@ -28,6 +28,7 @@ Ledgerly is a polished personal invoice and expense tracker built with Next.js, 
 - Next.js 16
 - React 19
 - TypeScript
+- Material UI with the Next.js App Router cache integration
 - Tailwind CSS 4
 - Supabase Auth and Postgres
 

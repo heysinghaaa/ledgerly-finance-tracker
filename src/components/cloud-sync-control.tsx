@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import ButtonBase from "@mui/material/ButtonBase";
+import { AppInput } from "@/components/app-input";
 import type { Session } from "@supabase/supabase-js";
 import type { SyncStatus } from "@/hooks/use-cloud-finance";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
@@ -97,8 +99,8 @@ export function CloudSyncControl({
         </div>
         <p>Sign in by email. Your current local data becomes your first cloud copy.</p>
         <form className="sync-form" onSubmit={handleSignIn}>
-          <input
-            aria-label="Email for magic link"
+          <AppInput
+            ariaLabel="Email for magic link"
             autoComplete="email"
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
@@ -106,9 +108,9 @@ export function CloudSyncControl({
             type="email"
             value={email}
           />
-          <button disabled={submitting} type="submit">
+          <ButtonBase disabled={submitting} type="submit">
             {submitting ? "Sending…" : "Email sign-in link"}
-          </button>
+          </ButtonBase>
         </form>
         {authMessage && <p className="sync-message">{authMessage}</p>}
       </section>
@@ -133,9 +135,9 @@ export function CloudSyncControl({
         </p>
       )}
       {syncError && <p className="sync-error">{syncError}</p>}
-      <button className="sync-signout" disabled={submitting} onClick={handleSignOut} type="button">
+      <ButtonBase className="sync-signout" disabled={submitting} onClick={handleSignOut} type="button">
         {submitting ? "Signing out…" : "Sign out"}
-      </button>
+      </ButtonBase>
       {authMessage && <p className="sync-message">{authMessage}</p>}
     </section>
   );

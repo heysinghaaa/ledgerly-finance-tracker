@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
+import { MuiProvider } from "@/components/mui-provider";
 import { NotificationProvider } from "@/components/notifications";
 import "./globals.css";
 
@@ -23,7 +25,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body><NotificationProvider>{children}</NotificationProvider></body>
+      <body>
+        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+          <MuiProvider>
+            <NotificationProvider>{children}</NotificationProvider>
+          </MuiProvider>
+        </AppRouterCacheProvider>
+      </body>
     </html>
   );
 }

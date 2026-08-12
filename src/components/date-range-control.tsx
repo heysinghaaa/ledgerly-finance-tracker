@@ -1,6 +1,8 @@
 "use client";
 
-import { CalendarDays, ChevronDown } from "lucide-react";
+import { CalendarDays } from "lucide-react";
+import { AppSelect } from "@/components/app-select";
+import { AppInput } from "@/components/app-input";
 import { getDateRange } from "@/lib/finance-service";
 import type { DateRange, DateRangePreset } from "@/lib/types";
 
@@ -22,8 +24,8 @@ export function DateRangeControl({ value, onChange }: { value: DateRange; onChan
 
   return (
     <div className="date-range-control">
-      <label className="select-control date-preset"><CalendarDays size={15} /><select aria-label="Date range" value={value.preset} onChange={(event) => setPreset(event.target.value as DateRangePreset)}>{Object.entries(labels).map(([preset, label]) => <option key={preset} value={preset}>{label}</option>)}</select><ChevronDown size={14} /></label>
-      {value.preset === "custom" && <div className="custom-dates"><label><span>From</span><input aria-label="Start date" type="date" max={value.to} value={value.from} onInput={(event) => onChange({ ...value, from: event.currentTarget.value })} /></label><span>to</span><label><span>To</span><input aria-label="End date" type="date" min={value.from} value={value.to} onInput={(event) => onChange({ ...value, to: event.currentTarget.value })} /></label></div>}
+      <AppSelect ariaLabel="Date range" value={value.preset} onChange={setPreset} icon={<CalendarDays size={15} />} options={Object.entries(labels).map(([preset, label]) => ({ value: preset as DateRangePreset, label }))} />
+      {value.preset === "custom" && <div className="custom-dates"><label><span>From</span><AppInput ariaLabel="Start date" type="date" max={value.to} value={value.from} onInput={(event) => onChange({ ...value, from: event.currentTarget.value })} /></label><span>to</span><label><span>To</span><AppInput ariaLabel="End date" type="date" min={value.from} value={value.to} onInput={(event) => onChange({ ...value, to: event.currentTarget.value })} /></label></div>}
     </div>
   );
 }

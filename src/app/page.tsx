@@ -1,6 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import ButtonBase from "@mui/material/ButtonBase";
+import Dialog from "@mui/material/Dialog";
+import IconButton from "@mui/material/IconButton";
+import InputBase from "@mui/material/InputBase";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Tooltip from "@mui/material/Tooltip";
 import {
   AlertCircle,
   ArrowDownRight,
@@ -10,7 +20,6 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
-  ChevronDown,
   CircleDollarSign,
   Command,
   FilePlus2,
@@ -38,6 +47,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { CloudSyncControl } from "@/components/cloud-sync-control";
+import { AppSelect } from "@/components/app-select";
+import { AppInput, AppTextarea } from "@/components/app-input";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { DateRangeControl } from "@/components/date-range-control";
 import { useNotifications } from "@/components/notifications";
@@ -203,6 +214,7 @@ export default function Home() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [paletteQuery, setPaletteQuery] = useState("");
+  const [paletteIndex, setPaletteIndex] = useState(0);
   const [themePreference, setThemePreference] = useState<ThemePreference>(() => {
     if (typeof window === "undefined") return "system";
     const stored = window.localStorage.getItem("ledgerly-theme");
@@ -409,32 +421,32 @@ export default function Home() {
     <main className="app-shell">
       <aside className={mobileNavOpen ? "sidebar mobile-open" : "sidebar"}>
         <div className="sidebar-header">
-          <button className="brand-block" type="button" onClick={() => navigate("dashboard")} aria-label="Ledgerly home">
+          <ButtonBase className="brand-block" onClick={() => navigate("dashboard")} aria-label="Ledgerly home">
             <span className="brand-mark"><TrendingUp size={18} strokeWidth={2.4} /></span>
             <span className="brand-copy"><strong>Ledgerly</strong><small>Finance workspace</small></span>
-          </button>
-          <button className="icon-button mobile-only" type="button" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation">
+          </ButtonBase>
+          <IconButton className="icon-button mobile-only" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation">
             <X size={19} />
-          </button>
+          </IconButton>
         </div>
 
         <nav className="nav-stack" aria-label="Ledgerly navigation">
           <p className="nav-label">Workspace</p>
           {navItems.map(({ id, label, icon: Icon }) => (
-            <button className={activeView === id ? "active" : ""} key={id} type="button" onClick={() => navigate(id)}>
+            <ButtonBase className={activeView === id ? "active" : ""} key={id} onClick={() => navigate(id)}>
               <Icon size={18} />
               <span>{label}</span>
               {id === "invoices" && <em>{invoices.length}</em>}
               {id === "expenses" && <em>{expenses.length}</em>}
               {id === "clients" && <em>{clients.length}</em>}
-            </button>
+            </ButtonBase>
           ))}
         </nav>
 
-        <button className="command-trigger" type="button" onClick={() => setPaletteOpen(true)}>
+        <ButtonBase className="command-trigger" onClick={() => setPaletteOpen(true)}>
           <span><Command size={16} /> Quick actions</span>
           <kbd>⌘ K</kbd>
-        </button>
+        </ButtonBase>
 
         <div className="sidebar-spacer" />
         <CloudSyncControl
@@ -453,31 +465,38 @@ export default function Home() {
         </div>
       </aside>
 
-      {mobileNavOpen && <button className="sidebar-scrim" type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} />}
+      {mobileNavOpen && <ButtonBase className="sidebar-scrim" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} />}
 
       <section className="workspace">
         <header className="topbar">
           <div className="topbar-left">
-            <button className="icon-button menu-button" type="button" onClick={() => setMobileNavOpen(true)} aria-label="Open navigation">
+            <IconButton className="icon-button menu-button" onClick={() => setMobileNavOpen(true)} aria-label="Open navigation">
               <Menu size={20} />
-            </button>
+            </IconButton>
             <div>
               <h1>{activeTitle}</h1>
               <p>{activeDescription}</p>
             </div>
           </div>
           <div className="topbar-actions">
-            <label className="search-field">
+            <div className="search-field">
               <Search size={17} />
-              <input id="global-record-search" aria-label="Search records" placeholder="Search records..." value={search} onChange={(event) => setSearch(event.target.value)} />
-              <kbd>⌘ K</kbd>
-            </label>
-            <button className="icon-button" type="button" onClick={toggleTheme} aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} theme`}>
+              <InputBase id="global-record-search" aria-label="Search records" placeholder="Search records..." value={search} onChange={(event) => setSearch(event.target.value)} />
+              <kbd>⌘K</kbd>
+            </div>
+            <Tooltip title="Quick actions and search (⌘K)" arrow>
+              <IconButton className="icon-button header-command-button" onClick={() => setPaletteOpen(true)} aria-label="Open quick actions and search">
+                <Command size={18} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} theme`} arrow>
+              <IconButton className="icon-button" onClick={toggleTheme} aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} theme`}>
               {resolvedTheme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-            <button className="primary-button topbar-cta" type="button" onClick={createNewInvoice}>
+              </IconButton>
+            </Tooltip>
+            <ButtonBase className="primary-button topbar-cta" onClick={createNewInvoice}>
               <Plus size={17} /> New invoice
-            </button>
+            </ButtonBase>
           </div>
         </header>
 
@@ -485,7 +504,7 @@ export default function Home() {
           <div className="feedback-banner error" role="alert">
             <AlertCircle size={18} />
             <div><strong>Cloud sync needs attention</strong><span>{syncError}</span></div>
-            <button type="button" onClick={() => window.location.reload()}><RefreshCw size={15} /> Retry</button>
+            <ButtonBase type="button" onClick={() => window.location.reload()}><RefreshCw size={15} /> Retry</ButtonBase>
           </div>
         )}
 
@@ -614,21 +633,17 @@ export default function Home() {
         </div>
       </section>
 
-      {paletteOpen && (
-        <div className="modal-backdrop" role="presentation" onMouseDown={() => setPaletteOpen(false)}>
-          <section className="command-palette" role="dialog" aria-modal="true" aria-label="Command palette" onMouseDown={(event) => event.stopPropagation()}>
-            <div className="palette-search"><Search size={19} /><input autoFocus aria-label="Search commands" placeholder="Type a command or search..." value={paletteQuery} onChange={(event) => setPaletteQuery(event.target.value)} /><kbd>ESC</kbd></div>
+      <Dialog open={paletteOpen} onClose={() => setPaletteOpen(false)} fullWidth maxWidth="sm" aria-label="Command palette" slotProps={{ paper: { className: "command-palette" } }}>
+            <div className="palette-search"><Search size={19} /><InputBase autoFocus aria-label="Search commands" placeholder="Type a command or search..." value={paletteQuery} onChange={(event) => { setPaletteQuery(event.target.value); setPaletteIndex(0); }} onKeyDown={(event) => { if (event.key === "ArrowDown") { event.preventDefault(); setPaletteIndex((index) => Math.min(index + 1, paletteActions.length - 1)); } else if (event.key === "ArrowUp") { event.preventDefault(); setPaletteIndex((index) => Math.max(index - 1, 0)); } else if (event.key === "Enter" && paletteActions[paletteIndex]) { event.preventDefault(); paletteActions[paletteIndex].run(); } }} /><kbd>ESC</kbd></div>
             <div className="palette-results">
               <p>Quick actions</p>
-              {paletteActions.map(({ label, hint, icon: Icon, run }) => (
-                <button key={label} type="button" onClick={run}><span><Icon size={18} /><strong>{label}</strong></span><small>{hint}</small></button>
+              {paletteActions.map(({ label, hint, icon: Icon, run }, index) => (
+                <ButtonBase className={index === paletteIndex ? "selected" : ""} key={label} onMouseEnter={() => setPaletteIndex(index)} onClick={run}><span><Icon size={18} /><strong>{label}</strong></span><small>{hint}</small></ButtonBase>
               ))}
               {paletteActions.length === 0 && <div className="palette-empty"><Search size={22} /><span>No commands found</span></div>}
             </div>
             <footer><span><kbd>↑</kbd><kbd>↓</kbd> to navigate</span><span><kbd>↵</kbd> to select</span></footer>
-          </section>
-        </div>
-      )}
+      </Dialog>
 
     </main>
   );
@@ -712,15 +727,15 @@ function Dashboard({
 
       <div className="bottom-grid">
         <article className="panel activity-panel">
-          <div className="panel-heading"><div><h2>Recent activity</h2><p>Your latest invoice and expense updates</p></div><button className="text-button" type="button" onClick={() => onNavigate("invoices")}>View all <ArrowUpRight size={15} /></button></div>
+          <div className="panel-heading"><div><h2>Recent activity</h2><p>Your latest invoice and expense updates</p></div><ButtonBase className="text-button" type="button" onClick={() => onNavigate("invoices")}>View all <ArrowUpRight size={15} /></ButtonBase></div>
           {summary.recentActivity.length ? (
             <div className="activity-list">
               {summary.recentActivity.map((activity) => (
-                <button className="activity-row" key={`${activity.type}-${activity.id}`} type="button" onClick={() => onNavigate(activity.type === "income" ? "invoices" : "expenses")}>
+                <ButtonBase className="activity-row" key={`${activity.type}-${activity.id}`} type="button" onClick={() => onNavigate(activity.type === "income" ? "invoices" : "expenses")}>
                   <span className={`activity-icon ${activity.type}`}>{activity.type === "income" ? <FileText size={17} /> : <WalletCards size={17} />}</span>
                   <span className="activity-copy"><strong>{activity.label}</strong><small>{activity.detail}</small></span>
                   <span className={activity.amount >= 0 ? "activity-amount positive" : "activity-amount"}>{activity.amount >= 0 ? "+" : "−"}{formatCurrency(Math.abs(activity.amount))}</span>
-                </button>
+                </ButtonBase>
               ))}
             </div>
           ) : (
@@ -733,7 +748,7 @@ function Dashboard({
           <strong className="editorial-number">{formatCurrency(summary.monthlyBalance)}</strong>
           <p className="balance-helper"><ArrowUpRight size={15} /> Your balance is trending positively.</p>
           <div className="balance-breakdown"><span><i className="legend-dot purple" />Collected <strong>{formatCurrency(summary.metrics[0].value)}</strong></span><span><i className="legend-dot gray" />Spent <strong>{formatCurrency(summary.metrics[1].value)}</strong></span></div>
-          <button className="secondary-button full-width" type="button" onClick={() => onNavigate("expenses")}>Review expenses</button>
+          <ButtonBase className="secondary-button full-width" type="button" onClick={() => onNavigate("expenses")}>Review expenses</ButtonBase>
         </article>
       </div>
     </section>
@@ -801,40 +816,40 @@ function InvoicesView({
         <div className="records-toolbar">
           <div className="filter-tabs" aria-label="Invoice status filters">
             {invoiceStatuses.map((status) => (
-              <button className={filter === status ? "selected" : ""} key={status} type="button" onClick={() => onFilter(status)}>{status}<span>{status === "all" ? allInvoicesCount : ""}</span></button>
+              <ButtonBase className={filter === status ? "selected" : ""} key={status} type="button" onClick={() => onFilter(status)}>{status}<span>{status === "all" ? allInvoicesCount : ""}</span></ButtonBase>
             ))}
           </div>
           <div className="toolbar-actions">
-            <button className="secondary-button" type="button" onClick={onExport}><Download size={15} /> Export</button>
-            <label className="select-control"><ArrowUpDown size={15} /><select aria-label="Sort invoices" value={sort} onChange={(event) => onSort(event.target.value as InvoiceSort)}><option value="due">Due date</option><option value="amount">Amount</option><option value="client">Client</option><option value="status">Status</option></select><ChevronDown size={14} /></label>
-            <button className="primary-button" type="button" onClick={onCreate}><Plus size={16} /> New invoice</button>
+            <ButtonBase className="secondary-button" type="button" onClick={onExport}><Download size={15} /> Export</ButtonBase>
+            <AppSelect ariaLabel="Sort invoices" value={sort} onChange={onSort} icon={<ArrowUpDown size={15} />} options={[{ value: "due", label: "Due date" }, { value: "amount", label: "Amount" }, { value: "client", label: "Client" }, { value: "status", label: "Status" }]} />
+            <ButtonBase className="primary-button" type="button" onClick={onCreate}><Plus size={16} /> New invoice</ButtonBase>
           </div>
         </div>
 
         <FilterBar>
           <DateRangeControl value={range} onChange={onRangeChange} />
-          <label className="select-control compact"><Users size={14} /><select aria-label="Filter by client" value={clientFilter} onChange={(event) => onClientFilter(event.target.value)}><option value="all">All clients</option>{clients.map((client) => <option key={client.id} value={client.id}>{client.company || client.name}</option>)}</select><ChevronDown size={13} /></label>
+          <AppSelect ariaLabel="Filter by client" value={clientFilter} onChange={onClientFilter} compact icon={<Users size={14} />} options={[{ value: "all", label: "All clients" }, ...clients.map((client) => ({ value: client.id, label: client.company || client.name }))]} />
           <AmountRange min={amountMin} max={amountMax} onMin={onAmountMin} onMax={onAmountMax} />
         </FilterBar>
 
         <article className="table-card">
           {invoices.length ? (
             <div className="table-scroll">
-              <table className="data-table">
-                <thead><tr><th>Invoice</th><th>Client</th><th>Due date</th><th>Status</th><th className="numeric">Amount</th><th><span className="sr-only">Actions</span></th></tr></thead>
-                <tbody>
+              <Table className="data-table">
+                <TableHead><TableRow><TableCell component="th">Invoice</TableCell><TableCell component="th">Client</TableCell><TableCell component="th">Due date</TableCell><TableCell component="th">Status</TableCell><TableCell component="th" className="numeric">Amount</TableCell><TableCell component="th"><span className="sr-only">Actions</span></TableCell></TableRow></TableHead>
+                <TableBody>
                   {invoices.map((invoice) => (
-                    <tr className={selectedInvoice?.id === invoice.id ? "selected-row" : ""} key={invoice.id} onClick={() => onSelect(invoice.id)}>
-                      <td data-label="Invoice"><button className="table-primary" type="button" onClick={() => onSelect(invoice.id)}>{invoice.invoiceNumber}</button></td>
-                      <td data-label="Client"><strong>{invoice.client.company || invoice.client.name}</strong><small>{invoice.client.email}</small></td>
-                      <td data-label="Due date">{formatDate(invoice.dueDate)}</td>
-                      <td data-label="Status"><StatusBadge status={invoice.status} /></td>
-                      <td data-label="Amount" className="numeric amount-cell">{formatCurrency(calculateInvoiceTotal(invoice))}</td>
-                      <td><button className="row-action" type="button" onClick={(event) => { event.stopPropagation(); onSelect(invoice.id); }} aria-label={`Edit ${invoice.invoiceNumber}`}><MoreHorizontal size={18} /></button></td>
-                    </tr>
+                    <TableRow className={selectedInvoice?.id === invoice.id ? "selected-row" : ""} key={invoice.id} onClick={() => onSelect(invoice.id)}>
+                      <TableCell data-label="Invoice"><ButtonBase className="table-primary" type="button" onClick={() => onSelect(invoice.id)}>{invoice.invoiceNumber}</ButtonBase></TableCell>
+                      <TableCell data-label="Client"><strong>{invoice.client.company || invoice.client.name}</strong><small>{invoice.client.email}</small></TableCell>
+                      <TableCell data-label="Due date">{formatDate(invoice.dueDate)}</TableCell>
+                      <TableCell data-label="Status"><StatusBadge status={invoice.status} /></TableCell>
+                      <TableCell data-label="Amount" className="numeric amount-cell">{formatCurrency(calculateInvoiceTotal(invoice))}</TableCell>
+                      <TableCell><ButtonBase className="row-action" type="button" onClick={(event) => { event.stopPropagation(); onSelect(invoice.id); }} aria-label={`Edit ${invoice.invoiceNumber}`}><MoreHorizontal size={18} /></ButtonBase></TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           ) : (
             <EmptyState icon={FileText} title={hasSearch || filter !== "all" ? "No matching invoices" : "No invoices yet"} description={hasSearch || filter !== "all" ? "Try changing your search or status filter." : "Create a polished invoice and start tracking what you're owed."} action="Create invoice" onAction={onCreate} />
@@ -900,12 +915,12 @@ function ExpensesView({
       <div className="records-main">
         <div className="records-toolbar">
           <div className="filter-tabs category-tabs" aria-label="Expense category filters">
-            {expenseCategories.map((category) => <button className={filter === category ? "selected" : ""} key={category} type="button" onClick={() => onFilter(category)}>{category}<span>{category === "all" ? allExpensesCount : ""}</span></button>)}
+            {expenseCategories.map((category) => <ButtonBase className={filter === category ? "selected" : ""} key={category} type="button" onClick={() => onFilter(category)}>{category}<span>{category === "all" ? allExpensesCount : ""}</span></ButtonBase>)}
           </div>
           <div className="toolbar-actions">
-            <button className="secondary-button" type="button" onClick={onExport}><Download size={15} /> Export</button>
-            <label className="select-control"><SlidersHorizontal size={15} /><select aria-label="Sort expenses" value={sort} onChange={(event) => onSort(event.target.value as ExpenseSort)}><option value="date">Recent first</option><option value="amount">Amount</option><option value="merchant">Merchant</option></select><ChevronDown size={14} /></label>
-            <button className="primary-button" type="button" onClick={onCreate}><Plus size={16} /> Add expense</button>
+            <ButtonBase className="secondary-button" type="button" onClick={onExport}><Download size={15} /> Export</ButtonBase>
+            <AppSelect ariaLabel="Sort expenses" value={sort} onChange={onSort} icon={<SlidersHorizontal size={15} />} options={[{ value: "date", label: "Recent first" }, { value: "amount", label: "Amount" }, { value: "merchant", label: "Merchant" }]} />
+            <ButtonBase className="primary-button" type="button" onClick={onCreate}><Plus size={16} /> Add expense</ButtonBase>
           </div>
         </div>
 
@@ -914,21 +929,21 @@ function ExpensesView({
         <article className="table-card">
           {expenses.length ? (
             <div className="table-scroll">
-              <table className="data-table">
-                <thead><tr><th>Merchant</th><th>Category</th><th>Date</th><th>Payment method</th><th className="numeric">Amount</th><th><span className="sr-only">Actions</span></th></tr></thead>
-                <tbody>
+              <Table className="data-table">
+                <TableHead><TableRow><TableCell component="th">Merchant</TableCell><TableCell component="th">Category</TableCell><TableCell component="th">Date</TableCell><TableCell component="th">Payment method</TableCell><TableCell component="th" className="numeric">Amount</TableCell><TableCell component="th"><span className="sr-only">Actions</span></TableCell></TableRow></TableHead>
+                <TableBody>
                   {expenses.map((expense) => (
-                    <tr className={selectedExpense?.id === expense.id ? "selected-row" : ""} key={expense.id} onClick={() => onSelect(expense.id)}>
-                      <td data-label="Merchant"><button className="table-primary" type="button" onClick={() => onSelect(expense.id)}>{expense.merchant}</button><small>{expense.note}</small></td>
-                      <td data-label="Category"><span className="category-badge">{expense.category}</span></td>
-                      <td data-label="Date">{formatDate(expense.date)}</td>
-                      <td data-label="Payment">{expense.paymentMethod}</td>
-                      <td data-label="Amount" className="numeric amount-cell">{formatCurrency(expense.amount)}</td>
-                      <td><button className="row-action" type="button" onClick={(event) => { event.stopPropagation(); onSelect(expense.id); }} aria-label={`Edit ${expense.merchant}`}><MoreHorizontal size={18} /></button></td>
-                    </tr>
+                    <TableRow className={selectedExpense?.id === expense.id ? "selected-row" : ""} key={expense.id} onClick={() => onSelect(expense.id)}>
+                      <TableCell data-label="Merchant"><ButtonBase className="table-primary" type="button" onClick={() => onSelect(expense.id)}>{expense.merchant}</ButtonBase><small>{expense.note}</small></TableCell>
+                      <TableCell data-label="Category"><span className="category-badge">{expense.category}</span></TableCell>
+                      <TableCell data-label="Date">{formatDate(expense.date)}</TableCell>
+                      <TableCell data-label="Payment">{expense.paymentMethod}</TableCell>
+                      <TableCell data-label="Amount" className="numeric amount-cell">{formatCurrency(expense.amount)}</TableCell>
+                      <TableCell><ButtonBase className="row-action" type="button" onClick={(event) => { event.stopPropagation(); onSelect(expense.id); }} aria-label={`Edit ${expense.merchant}`}><MoreHorizontal size={18} /></ButtonBase></TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           ) : (
             <EmptyState icon={WalletCards} title={hasSearch || filter !== "all" ? "No matching expenses" : "No expenses yet"} description={hasSearch || filter !== "all" ? "Try changing your search or category filter." : "Add your first expense to understand where your money goes."} action="Add expense" onAction={onCreate} />
@@ -979,18 +994,18 @@ function ClientsView({
     <section className={selectedClient ? "records-page detail-open" : "records-page"}>
       <div className="records-main">
         <div className="records-toolbar">
-          <div className="filter-tabs"><button className="selected" type="button">All clients <span>{allClientsCount}</span></button></div>
+          <div className="filter-tabs"><ButtonBase className="selected" type="button">All clients <span>{allClientsCount}</span></ButtonBase></div>
           <div className="toolbar-actions">
-            <button className="secondary-button" type="button" onClick={onExport}><Download size={15} /> Export</button>
-            <label className="select-control"><ArrowUpDown size={15} /><select aria-label="Sort clients" value={sort} onChange={(event) => onSort(event.target.value as ClientSort)}><option value="created">Recently added</option><option value="name">Contact name</option><option value="company">Company</option><option value="revenue">Total invoiced</option></select><ChevronDown size={14} /></label>
-            <button className="primary-button" type="button" onClick={onCreate}><UserPlus size={16} /> Add client</button>
+            <ButtonBase className="secondary-button" type="button" onClick={onExport}><Download size={15} /> Export</ButtonBase>
+            <AppSelect ariaLabel="Sort clients" value={sort} onChange={onSort} icon={<ArrowUpDown size={15} />} options={[{ value: "created", label: "Recently added" }, { value: "name", label: "Contact name" }, { value: "company", label: "Company" }, { value: "revenue", label: "Total invoiced" }]} />
+            <ButtonBase className="primary-button" type="button" onClick={onCreate}><UserPlus size={16} /> Add client</ButtonBase>
           </div>
         </div>
         <article className="table-card">
-          {clients.length ? <div className="table-scroll"><table className="data-table clients-table"><thead><tr><th>Client</th><th>Contact</th><th>Invoices</th><th className="numeric">Total invoiced</th><th className="numeric">Outstanding</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{clients.map((client) => {
+          {clients.length ? <div className="table-scroll"><Table className="data-table clients-table"><TableHead><TableRow><TableCell component="th">Client</TableCell><TableCell component="th">Contact</TableCell><TableCell component="th">Invoices</TableCell><TableCell component="th" className="numeric">Total invoiced</TableCell><TableCell component="th" className="numeric">Outstanding</TableCell><TableCell component="th"><span className="sr-only">Actions</span></TableCell></TableRow></TableHead><TableBody>{clients.map((client) => {
             const financials = getClientFinancials(state, client.id);
-            return <tr className={selectedClient?.id === client.id ? "selected-row" : ""} key={client.id} onClick={() => onSelect(client.id)}><td data-label="Client"><button className="table-primary" type="button" onClick={() => onSelect(client.id)}>{client.company || client.name}</button><small>{client.company ? client.name : client.city}</small></td><td data-label="Contact"><strong>{client.email}</strong><small>{client.phone || "No phone"}</small></td><td data-label="Invoices">{financials.invoices.length}</td><td data-label="Total invoiced" className="numeric amount-cell">{formatCurrency(financials.totalInvoiced)}</td><td data-label="Outstanding" className="numeric amount-cell outstanding-cell">{formatCurrency(financials.outstandingAmount)}</td><td><button className="row-action" type="button" onClick={(event) => { event.stopPropagation(); onSelect(client.id); }} aria-label={`Edit ${client.company || client.name}`}><MoreHorizontal size={18} /></button></td></tr>;
-          })}</tbody></table></div> : <EmptyState icon={Users} title="No clients yet" description="Create your first client profile to link invoices and track revenue history." action="Add client" onAction={onCreate} />}
+            return <TableRow className={selectedClient?.id === client.id ? "selected-row" : ""} key={client.id} onClick={() => onSelect(client.id)}><TableCell data-label="Client"><ButtonBase className="table-primary" type="button" onClick={() => onSelect(client.id)}>{client.company || client.name}</ButtonBase><small>{client.company ? client.name : client.city}</small></TableCell><TableCell data-label="Contact"><strong>{client.email}</strong><small>{client.phone || "No phone"}</small></TableCell><TableCell data-label="Invoices">{financials.invoices.length}</TableCell><TableCell data-label="Total invoiced" className="numeric amount-cell">{formatCurrency(financials.totalInvoiced)}</TableCell><TableCell data-label="Outstanding" className="numeric amount-cell outstanding-cell">{formatCurrency(financials.outstandingAmount)}</TableCell><TableCell><ButtonBase className="row-action" type="button" onClick={(event) => { event.stopPropagation(); onSelect(client.id); }} aria-label={`Edit ${client.company || client.name}`}><MoreHorizontal size={18} /></ButtonBase></TableCell></TableRow>;
+          })}</TableBody></Table></div> : <EmptyState icon={Users} title="No clients yet" description="Create your first client profile to link invoices and track revenue history." action="Add client" onAction={onCreate} />}
           {clients.length > 0 && <Pagination page={pagination.page} pageCount={pagination.pageCount} total={filteredCount} pageSize={pagination.pageSize} onPageChange={onPageChange} />}
         </article>
       </div>
@@ -1004,28 +1019,28 @@ function ClientDetail({ client, state, onChange, onClose, onOpenInvoice, onDelet
   const financials = getClientFinancials(state, client.id);
   return (
     <aside className="detail-panel client-detail" aria-label="Client details">
-      <div className="detail-header"><div><span className="eyebrow">Client details</span><h2>{client.company || client.name || "New client"}</h2></div><button className="icon-button" type="button" onClick={onClose} aria-label="Close client"><X size={18} /></button></div>
+      <div className="detail-header"><div><span className="eyebrow">Client details</span><h2>{client.company || client.name || "New client"}</h2></div><ButtonBase className="icon-button" type="button" onClick={onClose} aria-label="Close client"><X size={18} /></ButtonBase></div>
       <div className="detail-scroll">
         <div className="client-summary-grid"><div><span>Total invoiced</span><strong>{formatCurrency(financials.totalInvoiced)}</strong></div><div><span>Paid</span><strong className="positive">{formatCurrency(financials.paidAmount)}</strong></div><div><span>Outstanding</span><strong className="warning-text">{formatCurrency(financials.outstandingAmount)}</strong></div></div>
         <div className="form-section"><h3>Contact information</h3><div className="form-grid">
-          <Field label="Contact name"><input value={client.name} placeholder="Full name" onChange={(event) => onChange({ ...client, name: event.target.value })} /></Field>
-          <Field label="Company"><input value={client.company} placeholder="Company name" onChange={(event) => onChange({ ...client, company: event.target.value })} /></Field>
-          <Field label="Email"><input type="email" value={client.email} placeholder="name@company.com" onChange={(event) => onChange({ ...client, email: event.target.value })} /></Field>
-          <Field label="Phone"><input type="tel" value={client.phone} placeholder="+91 98765 43210" onChange={(event) => onChange({ ...client, phone: event.target.value })} /></Field>
-          <Field label="City"><input value={client.city} onChange={(event) => onChange({ ...client, city: event.target.value })} /></Field>
-          <Field label="Created date"><input type="date" value={client.createdAt.slice(0, 10)} onChange={(event) => onChange({ ...client, createdAt: new Date(`${event.target.value}T00:00:00.000Z`).toISOString() })} /></Field>
+          <Field label="Contact name"><AppInput value={client.name} placeholder="Full name" onChange={(event) => onChange({ ...client, name: event.target.value })} /></Field>
+          <Field label="Company"><AppInput value={client.company} placeholder="Company name" onChange={(event) => onChange({ ...client, company: event.target.value })} /></Field>
+          <Field label="Email"><AppInput type="email" value={client.email} placeholder="name@company.com" onChange={(event) => onChange({ ...client, email: event.target.value })} /></Field>
+          <Field label="Phone"><AppInput type="tel" value={client.phone} placeholder="+91 98765 43210" onChange={(event) => onChange({ ...client, phone: event.target.value })} /></Field>
+          <Field label="City"><AppInput value={client.city} onChange={(event) => onChange({ ...client, city: event.target.value })} /></Field>
+          <Field label="Created date"><AppInput type="date" value={client.createdAt.slice(0, 10)} onChange={(event) => onChange({ ...client, createdAt: new Date(`${event.target.value}T00:00:00.000Z`).toISOString() })} /></Field>
         </div></div>
-        <div className="form-section"><div className="form-grid single"><Field label="Billing address"><textarea value={client.billingAddress} onChange={(event) => onChange({ ...client, billingAddress: event.target.value })} /></Field><Field label="Notes"><textarea value={client.notes} onChange={(event) => onChange({ ...client, notes: event.target.value })} /></Field></div></div>
-        <div className="form-section"><div className="section-title"><h3>Invoice history</h3><span className="record-count">{financials.invoices.length} records</span></div>{financials.invoices.length ? <div className="client-invoice-list">{financials.invoices.sort((a, b) => b.issueDate.localeCompare(a.issueDate)).map((invoice) => <button type="button" key={invoice.id} onClick={() => onOpenInvoice(invoice.id)}><span><strong>{invoice.invoiceNumber}</strong><small>{formatDate(invoice.issueDate)}</small></span><StatusBadge status={invoice.status} /><em>{formatCurrency(calculateInvoiceTotal(invoice))}</em></button>)}</div> : <div className="inline-empty"><FileText size={18} /><span>No invoices linked to this client yet.</span></div>}</div>
+        <div className="form-section"><div className="form-grid single"><Field label="Billing address"><AppTextarea value={client.billingAddress} onChange={(event) => onChange({ ...client, billingAddress: event.target.value })} /></Field><Field label="Notes"><AppTextarea value={client.notes} onChange={(event) => onChange({ ...client, notes: event.target.value })} /></Field></div></div>
+        <div className="form-section"><div className="section-title"><h3>Invoice history</h3><span className="record-count">{financials.invoices.length} records</span></div>{financials.invoices.length ? <div className="client-invoice-list">{financials.invoices.sort((a, b) => b.issueDate.localeCompare(a.issueDate)).map((invoice) => <ButtonBase type="button" key={invoice.id} onClick={() => onOpenInvoice(invoice.id)}><span><strong>{invoice.invoiceNumber}</strong><small>{formatDate(invoice.issueDate)}</small></span><StatusBadge status={invoice.status} /><em>{formatCurrency(calculateInvoiceTotal(invoice))}</em></ButtonBase>)}</div> : <div className="inline-empty"><FileText size={18} /><span>No invoices linked to this client yet.</span></div>}</div>
       </div>
-      <div className="detail-footer"><button className="danger-button" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={15} /> Delete</button><span><CheckCircle2 size={14} /> Changes save automatically</span></div>
+      <div className="detail-footer"><ButtonBase className="danger-button" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={15} /> Delete</ButtonBase><span><CheckCircle2 size={14} /> Changes save automatically</span></div>
       <ConfirmDialog open={deleteOpen} title="Delete this client?" description={`Invoices for ${client.company || client.name || "this client"} will be preserved but no longer linked. This action cannot be undone.`} onClose={() => setDeleteOpen(false)} onConfirm={() => { setDeleteOpen(false); onDelete(); }} />
     </aside>
   );
 }
 
 function TransactionsView({ transactions, total, pagination, range, type, sort, amountMin, amountMax, onRangeChange, onType, onSort, onAmountMin, onAmountMax, onPageChange, onExport }: { transactions: Transaction[]; total: number; pagination: PaginatedResult<Transaction>; range: DateRange; type: TransactionType | "all"; sort: TransactionSort; amountMin: string; amountMax: string; onRangeChange: (range: DateRange) => void; onType: (type: TransactionType | "all") => void; onSort: (sort: TransactionSort) => void; onAmountMin: (value: string) => void; onAmountMax: (value: string) => void; onPageChange: (page: number) => void; onExport: () => void }) {
-  return <section className="records-page"><div className="records-main"><div className="records-toolbar"><div className="filter-tabs" aria-label="Transaction type filters">{(["all", "income", "expense"] as const).map((item) => <button className={type === item ? "selected" : ""} key={item} type="button" onClick={() => onType(item)}>{item}</button>)}</div><div className="toolbar-actions"><button className="secondary-button" type="button" onClick={onExport}><Download size={15} /> Export</button><label className="select-control"><ArrowUpDown size={15} /><select aria-label="Sort transactions" value={sort} onChange={(event) => onSort(event.target.value as TransactionSort)}><option value="date">Recent first</option><option value="amount">Amount</option><option value="name">Name</option></select><ChevronDown size={14} /></label></div></div><FilterBar><DateRangeControl value={range} onChange={onRangeChange} /><AmountRange min={amountMin} max={amountMax} onMin={onAmountMin} onMax={onAmountMax} /></FilterBar><article className="table-card">{transactions.length ? <div className="table-scroll"><table className="data-table"><thead><tr><th>Transaction</th><th>Type</th><th>Date</th><th>Detail</th><th className="numeric">Amount</th></tr></thead><tbody>{transactions.map((transaction) => <tr key={`${transaction.type}-${transaction.id}`}><td data-label="Transaction"><strong>{transaction.label}</strong></td><td data-label="Type"><span className={`transaction-badge ${transaction.type}`}>{transaction.type}</span></td><td data-label="Date">{formatDate(transaction.date)}</td><td data-label="Detail">{transaction.detail}</td><td data-label="Amount" className={`numeric amount-cell ${transaction.amount >= 0 ? "positive" : ""}`}>{transaction.amount >= 0 ? "+" : "−"}{formatCurrency(Math.abs(transaction.amount))}</td></tr>)}</tbody></table></div> : <div className="empty-state no-action"><Inbox size={25} /><h3>No matching transactions</h3><p>Adjust the date, type, amount, or search filters.</p></div>}<Pagination page={pagination.page} pageCount={pagination.pageCount} total={total} pageSize={pagination.pageSize} onPageChange={onPageChange} /></article></div></section>;
+  return <section className="records-page"><div className="records-main"><div className="records-toolbar"><div className="filter-tabs" aria-label="Transaction type filters">{(["all", "income", "expense"] as const).map((item) => <ButtonBase className={type === item ? "selected" : ""} key={item} type="button" onClick={() => onType(item)}>{item}</ButtonBase>)}</div><div className="toolbar-actions"><ButtonBase className="secondary-button" type="button" onClick={onExport}><Download size={15} /> Export</ButtonBase><AppSelect ariaLabel="Sort transactions" value={sort} onChange={onSort} icon={<ArrowUpDown size={15} />} options={[{ value: "date", label: "Recent first" }, { value: "amount", label: "Amount" }, { value: "name", label: "Name" }]} /></div></div><FilterBar><DateRangeControl value={range} onChange={onRangeChange} /><AmountRange min={amountMin} max={amountMax} onMin={onAmountMin} onMax={onAmountMax} /></FilterBar><article className="table-card">{transactions.length ? <div className="table-scroll"><Table className="data-table"><TableHead><TableRow><TableCell component="th">Transaction</TableCell><TableCell component="th">Type</TableCell><TableCell component="th">Date</TableCell><TableCell component="th">Detail</TableCell><TableCell component="th" className="numeric">Amount</TableCell></TableRow></TableHead><TableBody>{transactions.map((transaction) => <TableRow key={`${transaction.type}-${transaction.id}`}><TableCell data-label="Transaction"><strong>{transaction.label}</strong></TableCell><TableCell data-label="Type"><span className={`transaction-badge ${transaction.type}`}>{transaction.type}</span></TableCell><TableCell data-label="Date">{formatDate(transaction.date)}</TableCell><TableCell data-label="Detail">{transaction.detail}</TableCell><TableCell data-label="Amount" className={`numeric amount-cell ${transaction.amount >= 0 ? "positive" : ""}`}>{transaction.amount >= 0 ? "+" : "−"}{formatCurrency(Math.abs(transaction.amount))}</TableCell></TableRow>)}</TableBody></Table></div> : <div className="empty-state no-action"><Inbox size={25} /><h3>No matching transactions</h3><p>Adjust the date, type, amount, or search filters.</p></div>}<Pagination page={pagination.page} pageCount={pagination.pageCount} total={total} pageSize={pagination.pageSize} onPageChange={onPageChange} /></article></div></section>;
 }
 
 function AnalyticsView({ analytics, range, onRangeChange }: { analytics: AnalyticsSummary; range: DateRange; onRangeChange: (range: DateRange) => void }) {
@@ -1056,14 +1071,13 @@ function FilterBar({ children }: { children: React.ReactNode }) {
 }
 
 function AmountRange({ min, max, onMin, onMax }: { min: string; max: string; onMin: (value: string) => void; onMax: (value: string) => void }) {
-  return <div className="amount-range"><span>Amount</span><input aria-label="Minimum amount" min="0" type="number" placeholder="Min" value={min} onChange={(event) => onMin(event.target.value)} /><i>–</i><input aria-label="Maximum amount" min="0" type="number" placeholder="Max" value={max} onChange={(event) => onMax(event.target.value)} /></div>;
+  return <div className="amount-range"><span>Amount</span><AppInput ariaLabel="Minimum amount" min="0" type="number" placeholder="Min" value={min} onChange={(event) => onMin(event.target.value)} /><i>–</i><AppInput ariaLabel="Maximum amount" min="0" type="number" placeholder="Max" value={max} onChange={(event) => onMax(event.target.value)} /></div>;
 }
 
 function QuickClientDialog({ open, onClose, onCreate }: { open: boolean; onClose: () => void; onCreate: (client: Client) => void }) {
   const [client, setClient] = useState<Client>(() => emptyClient());
-  if (!open) return null;
   const valid = client.name.trim() && client.email.trim();
-  return <div className="modal-backdrop dialog-backdrop" role="presentation" onMouseDown={onClose}><section className="form-dialog" role="dialog" aria-modal="true" aria-labelledby="new-client-title" onMouseDown={(event) => event.stopPropagation()}><div className="dialog-heading"><div><span className="eyebrow">Quick create</span><h2 id="new-client-title">Add a client</h2></div><button className="icon-button" type="button" onClick={onClose} aria-label="Close dialog"><X size={17} /></button></div><p>Create the client without leaving this invoice. Their billing details will be linked automatically.</p><div className="form-grid"><Field label="Contact name"><input autoFocus value={client.name} onChange={(event) => setClient({ ...client, name: event.target.value })} /></Field><Field label="Company"><input value={client.company} onChange={(event) => setClient({ ...client, company: event.target.value })} /></Field><Field label="Email"><input type="email" value={client.email} onChange={(event) => setClient({ ...client, email: event.target.value })} /></Field><Field label="Phone"><input type="tel" value={client.phone} onChange={(event) => setClient({ ...client, phone: event.target.value })} /></Field></div><Field label="Billing address"><textarea value={client.billingAddress} onChange={(event) => setClient({ ...client, billingAddress: event.target.value })} /></Field><div className="dialog-actions"><button className="secondary-button" type="button" onClick={onClose}>Cancel</button><button className="primary-button" type="button" disabled={!valid} onClick={() => { onCreate(client); setClient(emptyClient()); }}>Create and select</button></div></section></div>;
+  return <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" aria-labelledby="new-client-title" slotProps={{ paper: { className: "form-dialog" } }}><div className="dialog-heading"><div><span className="eyebrow">Quick create</span><h2 id="new-client-title">Add a client</h2></div><IconButton className="icon-button" onClick={onClose} aria-label="Close dialog"><X size={17} /></IconButton></div><p>Create the client without leaving this invoice. Their billing details will be linked automatically.</p><div className="form-grid"><Field label="Contact name"><AppInput autoFocus value={client.name} onChange={(event) => setClient({ ...client, name: event.target.value })} /></Field><Field label="Company"><AppInput value={client.company} onChange={(event) => setClient({ ...client, company: event.target.value })} /></Field><Field label="Email"><AppInput type="email" value={client.email} onChange={(event) => setClient({ ...client, email: event.target.value })} /></Field><Field label="Phone"><AppInput type="tel" value={client.phone} onChange={(event) => setClient({ ...client, phone: event.target.value })} /></Field></div><Field label="Billing address"><AppTextarea value={client.billingAddress} onChange={(event) => setClient({ ...client, billingAddress: event.target.value })} /></Field><div className="dialog-actions"><ButtonBase className="secondary-button" onClick={onClose}>Cancel</ButtonBase><ButtonBase className="primary-button" disabled={!valid} onClick={() => { onCreate(client); setClient(emptyClient()); }}>Create and select</ButtonBase></div></Dialog>;
 }
 
 function InvoiceEditor({ invoice, clients, onCreateClient, onChange, onDelete, onClose }: { invoice: Invoice; clients: Client[]; onCreateClient: (client: Client) => void; onChange: (invoice: Invoice) => void; onDelete: () => void; onClose: () => void }) {
@@ -1077,29 +1091,29 @@ function InvoiceEditor({ invoice, clients, onCreateClient, onChange, onDelete, o
 
   return (
     <aside className="detail-panel invoice-detail" aria-label="Invoice editor">
-      <div className="detail-header"><div><span className="eyebrow">Invoice detail</span><h2>{invoice.invoiceNumber}</h2></div><button className="icon-button" type="button" onClick={onClose} aria-label="Close invoice"><X size={18} /></button></div>
+      <div className="detail-header"><div><span className="eyebrow">Invoice detail</span><h2>{invoice.invoiceNumber}</h2></div><ButtonBase className="icon-button" type="button" onClick={onClose} aria-label="Close invoice"><X size={18} /></ButtonBase></div>
       <div className="detail-scroll">
         <div className="detail-summary"><div><span>Total amount</span><strong>{formatCurrency(total)}</strong></div><StatusBadge status={invoice.status} /></div>
-        <div className="form-section"><div className="section-title"><h3>Client & invoice</h3><button className="text-button" type="button" onClick={() => setClientDialogOpen(true)}><UserPlus size={14} /> New client</button></div><div className="form-grid">
-          <Field label="Invoice number"><input value={invoice.invoiceNumber} onChange={(event) => onChange({ ...invoice, invoiceNumber: event.target.value })} /></Field>
-          <Field label="Status"><select value={invoice.status} onChange={(event) => onChange({ ...invoice, status: event.target.value as InvoiceStatus })}><option value="draft">Draft</option><option value="sent">Sent</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select></Field>
-          <Field label="Client"><select aria-label="Invoice client" value={invoice.clientId ?? ""} onChange={(event) => { const client = clients.find((item) => item.id === event.target.value); if (client) onChange(linkInvoiceToClient(invoice, client)); }}><option value="" disabled>Select client</option>{clients.map((client) => <option key={client.id} value={client.id}>{client.company ? `${client.company} — ${client.name}` : client.name}</option>)}</select></Field>
-          <Field label="Client email"><input type="email" value={invoice.client.email} readOnly /></Field>
-          <Field label="Issue date"><input type="date" value={invoice.issueDate} onChange={(event) => onChange({ ...invoice, issueDate: event.target.value })} /></Field>
-          <Field label="Due date"><input type="date" value={invoice.dueDate} onChange={(event) => onChange({ ...invoice, dueDate: event.target.value })} /></Field>
+        <div className="form-section"><div className="section-title"><h3>Client & invoice</h3><ButtonBase className="text-button" type="button" onClick={() => setClientDialogOpen(true)}><UserPlus size={14} /> New client</ButtonBase></div><div className="form-grid">
+          <Field label="Invoice number"><AppInput value={invoice.invoiceNumber} onChange={(event) => onChange({ ...invoice, invoiceNumber: event.target.value })} /></Field>
+          <Field label="Status"><AppSelect ariaLabel="Invoice status" value={invoice.status} onChange={(status) => onChange({ ...invoice, status })} fullWidth options={[{ value: "draft", label: "Draft" }, { value: "sent", label: "Sent" }, { value: "paid", label: "Paid" }, { value: "overdue", label: "Overdue" }]} /></Field>
+          <Field label="Client"><AppSelect ariaLabel="Invoice client" value={invoice.clientId ?? ""} onChange={(clientId) => { const client = clients.find((item) => item.id === clientId); if (client) onChange(linkInvoiceToClient(invoice, client)); }} fullWidth options={[{ value: "", label: "Select client", disabled: true }, ...clients.map((client) => ({ value: client.id, label: client.company ? `${client.company} — ${client.name}` : client.name }))]} /></Field>
+          <Field label="Client email"><AppInput type="email" value={invoice.client.email} readOnly /></Field>
+          <Field label="Issue date"><AppInput type="date" value={invoice.issueDate} onChange={(event) => onChange({ ...invoice, issueDate: event.target.value })} /></Field>
+          <Field label="Due date"><AppInput type="date" value={invoice.dueDate} onChange={(event) => onChange({ ...invoice, dueDate: event.target.value })} /></Field>
         </div></div>
-        <div className="form-section"><div className="section-title"><h3>Line items</h3><button className="text-button" type="button" onClick={() => onChange({ ...invoice, items: [...invoice.items, { id: createId("item"), description: "New line item", quantity: 1, rate: 1000, taxRate: 18 }] })}><Plus size={14} /> Add line</button></div>
-          <div className="line-items">{invoice.items.map((item) => <div className="line-item" key={item.id}><input aria-label="Item description" value={item.description} onChange={(event) => updateItem(item.id, { description: event.target.value })} /><div><input aria-label="Quantity" min="1" type="number" value={item.quantity} onChange={(event) => updateItem(item.id, { quantity: Number(event.target.value) })} /><input aria-label="Rate" min="0" type="number" value={item.rate} onChange={(event) => updateItem(item.id, { rate: Number(event.target.value) })} /><input aria-label="Tax rate" min="0" type="number" value={item.taxRate} onChange={(event) => updateItem(item.id, { taxRate: Number(event.target.value) })} /><button className="icon-button danger-icon" type="button" onClick={() => onChange({ ...invoice, items: invoice.items.filter((line) => line.id !== item.id) })} aria-label="Remove line item"><Trash2 size={15} /></button></div></div>)}</div>
+        <div className="form-section"><div className="section-title"><h3>Line items</h3><ButtonBase className="text-button" type="button" onClick={() => onChange({ ...invoice, items: [...invoice.items, { id: createId("item"), description: "New line item", quantity: 1, rate: 1000, taxRate: 18 }] })}><Plus size={14} /> Add line</ButtonBase></div>
+          <div className="line-items">{invoice.items.map((item) => <div className="line-item" key={item.id}><AppInput ariaLabel="Item description" value={item.description} onChange={(event) => updateItem(item.id, { description: event.target.value })} /><div><AppInput ariaLabel="Quantity" min="1" type="number" value={item.quantity} onChange={(event) => updateItem(item.id, { quantity: Number(event.target.value) })} /><AppInput ariaLabel="Rate" min="0" type="number" value={item.rate} onChange={(event) => updateItem(item.id, { rate: Number(event.target.value) })} /><AppInput ariaLabel="Tax rate" min="0" type="number" value={item.taxRate} onChange={(event) => updateItem(item.id, { taxRate: Number(event.target.value) })} /><ButtonBase className="icon-button danger-icon" type="button" onClick={() => onChange({ ...invoice, items: invoice.items.filter((line) => line.id !== item.id) })} aria-label="Remove line item"><Trash2 size={15} /></ButtonBase></div></div>)}</div>
         </div>
-        <div className="form-section"><div className="form-grid"><Field label="Discount"><input min="0" type="number" value={invoice.discount} onChange={(event) => onChange({ ...invoice, discount: Number(event.target.value) })} /></Field><Field label="Notes"><textarea value={invoice.notes} onChange={(event) => onChange({ ...invoice, notes: event.target.value })} /></Field></div></div>
+        <div className="form-section"><div className="form-grid"><Field label="Discount"><AppInput min="0" type="number" value={invoice.discount} onChange={(event) => onChange({ ...invoice, discount: Number(event.target.value) })} /></Field><Field label="Notes"><AppTextarea value={invoice.notes} onChange={(event) => onChange({ ...invoice, notes: event.target.value })} /></Field></div></div>
         <div className="invoice-preview">
-          <div className="preview-header"><span className="brand-mark small"><TrendingUp size={13} /></span><div><strong>Ledgerly</strong><small>{invoice.invoiceNumber}</small></div><button className="icon-button" type="button" onClick={() => void downloadInvoicePdf(invoice).then(() => notify({ tone: "success", title: "Invoice PDF downloaded" })).catch(() => notify({ tone: "error", title: "PDF download failed", message: "Please try again." }))} aria-label="Download invoice PDF"><Download size={16} /></button><button className="icon-button" type="button" onClick={() => window.print()} aria-label="Print invoice"><Printer size={16} /></button></div>
+          <div className="preview-header"><span className="brand-mark small"><TrendingUp size={13} /></span><div><strong>Ledgerly</strong><small>{invoice.invoiceNumber}</small></div><ButtonBase className="icon-button" type="button" onClick={() => void downloadInvoicePdf(invoice).then(() => notify({ tone: "success", title: "Invoice PDF downloaded" })).catch(() => notify({ tone: "error", title: "PDF download failed", message: "Please try again." }))} aria-label="Download invoice PDF"><Download size={16} /></ButtonBase><ButtonBase className="icon-button" type="button" onClick={() => window.print()} aria-label="Print invoice"><Printer size={16} /></ButtonBase></div>
           <div className="preview-bill"><span>Bill to</span><strong>{invoice.client.company || invoice.client.name}</strong><small>{invoice.client.name} · {invoice.client.email}</small></div>
           <div className="preview-lines">{invoice.items.map((item) => <div key={item.id}><span>{item.description}<small>{item.quantity} × {formatCurrency(item.rate)}</small></span><strong>{formatCurrency(item.quantity * item.rate)}</strong></div>)}</div>
           <div className="totals-box"><span>Subtotal <strong>{formatCurrency(subtotal)}</strong></span><span>Tax <strong>{formatCurrency(tax)}</strong></span><span>Discount <strong>−{formatCurrency(invoice.discount)}</strong></span><span className="grand-total">Total <strong>{formatCurrency(total)}</strong></span></div>
         </div>
       </div>
-      <div className="detail-footer"><button className="danger-button" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={15} /> Delete</button><span><CheckCircle2 size={14} /> Changes save automatically</span></div>
+      <div className="detail-footer"><ButtonBase className="danger-button" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={15} /> Delete</ButtonBase><span><CheckCircle2 size={14} /> Changes save automatically</span></div>
       <ConfirmDialog open={deleteOpen} title="Delete this invoice?" description="This permanently removes the invoice and its line items. This action cannot be undone." onClose={() => setDeleteOpen(false)} onConfirm={() => { setDeleteOpen(false); onDelete(); }} />
       <QuickClientDialog open={clientDialogOpen} onClose={() => setClientDialogOpen(false)} onCreate={(client) => { onCreateClient(client); setClientDialogOpen(false); }} />
     </aside>
@@ -1110,19 +1124,19 @@ function ExpenseEditor({ expense, onChange, onDelete, onClose }: { expense: Expe
   const [deleteOpen, setDeleteOpen] = useState(false);
   return (
     <aside className="detail-panel" aria-label="Expense editor">
-      <div className="detail-header"><div><span className="eyebrow">Expense detail</span><h2>{expense.merchant}</h2></div><button className="icon-button" type="button" onClick={onClose} aria-label="Close expense"><X size={18} /></button></div>
+      <div className="detail-header"><div><span className="eyebrow">Expense detail</span><h2>{expense.merchant}</h2></div><ButtonBase className="icon-button" type="button" onClick={onClose} aria-label="Close expense"><X size={18} /></ButtonBase></div>
       <div className="detail-scroll">
         <div className="expense-amount"><span>Tracked spend</span><strong>{formatCurrency(expense.amount)}</strong><small>{expense.category} · {expense.paymentMethod}</small></div>
         <div className="form-section"><h3>Expense information</h3><div className="form-grid single">
-          <Field label="Merchant"><input value={expense.merchant} onChange={(event) => onChange({ ...expense, merchant: event.target.value })} /></Field>
-          <Field label="Amount"><input min="0" type="number" value={expense.amount} onChange={(event) => onChange({ ...expense, amount: Number(event.target.value) })} /></Field>
-          <Field label="Category"><select value={expense.category} onChange={(event) => onChange({ ...expense, category: event.target.value as ExpenseCategory })}>{expenseCategories.filter((category) => category !== "all").map((category) => <option key={category}>{category}</option>)}</select></Field>
-          <Field label="Payment method"><select value={expense.paymentMethod} onChange={(event) => onChange({ ...expense, paymentMethod: event.target.value as PaymentMethod })}>{paymentMethods.map((method) => <option key={method}>{method}</option>)}</select></Field>
-          <Field label="Date"><input type="date" value={expense.date} onChange={(event) => onChange({ ...expense, date: event.target.value })} /></Field>
-          <Field label="Note"><textarea value={expense.note} onChange={(event) => onChange({ ...expense, note: event.target.value })} /></Field>
+          <Field label="Merchant"><AppInput value={expense.merchant} onChange={(event) => onChange({ ...expense, merchant: event.target.value })} /></Field>
+          <Field label="Amount"><AppInput min="0" type="number" value={expense.amount} onChange={(event) => onChange({ ...expense, amount: Number(event.target.value) })} /></Field>
+          <Field label="Category"><AppSelect ariaLabel="Expense category" value={expense.category} onChange={(category) => onChange({ ...expense, category })} fullWidth options={expenseCategories.filter((category): category is ExpenseCategory => category !== "all").map((category) => ({ value: category, label: category }))} /></Field>
+          <Field label="Payment method"><AppSelect ariaLabel="Payment method" value={expense.paymentMethod} onChange={(paymentMethod) => onChange({ ...expense, paymentMethod })} fullWidth options={paymentMethods.map((method) => ({ value: method, label: method }))} /></Field>
+          <Field label="Date"><AppInput type="date" value={expense.date} onChange={(event) => onChange({ ...expense, date: event.target.value })} /></Field>
+          <Field label="Note"><AppTextarea value={expense.note} onChange={(event) => onChange({ ...expense, note: event.target.value })} /></Field>
         </div></div>
       </div>
-      <div className="detail-footer"><button className="danger-button" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={15} /> Delete</button><span><CheckCircle2 size={14} /> Changes save automatically</span></div>
+      <div className="detail-footer"><ButtonBase className="danger-button" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={15} /> Delete</ButtonBase><span><CheckCircle2 size={14} /> Changes save automatically</span></div>
       <ConfirmDialog open={deleteOpen} title="Delete this expense?" description="This permanently removes the expense from your ledger and reports." onClose={() => setDeleteOpen(false)} onConfirm={() => { setDeleteOpen(false); onDelete(); }} />
     </aside>
   );
@@ -1137,7 +1151,7 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
 }
 
 function EmptyState({ icon: Icon, title, description, action, onAction }: { icon: LucideIcon; title: string; description: string; action: string; onAction: () => void }) {
-  return <div className="empty-state"><span className="empty-icon"><Icon size={24} /></span><h3>{title}</h3><p>{description}</p><button className="primary-button" type="button" onClick={onAction}><Plus size={16} />{action}</button></div>;
+  return <div className="empty-state"><span className="empty-icon"><Icon size={24} /></span><h3>{title}</h3><p>{description}</p><ButtonBase className="primary-button" type="button" onClick={onAction}><Plus size={16} />{action}</ButtonBase></div>;
 }
 
 function AppSkeleton() {

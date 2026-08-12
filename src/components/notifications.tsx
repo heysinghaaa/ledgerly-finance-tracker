@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { AlertCircle, CheckCircle2, Info, TriangleAlert, X } from "lucide-react";
+import IconButton from "@mui/material/IconButton";
 
 export type NotificationTone = "success" | "error" | "warning" | "info";
 
@@ -52,7 +53,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             <article className={`notification ${notification.tone}`} key={notification.id} role={notification.tone === "error" ? "alert" : "status"}>
               <span className="notification-icon"><Icon size={18} /></span>
               <span className="notification-copy"><strong>{notification.title}</strong>{notification.message && <small>{notification.message}</small>}</span>
-              <button type="button" onClick={() => dismiss(notification.id)} aria-label="Dismiss notification"><X size={15} /></button>
+              <IconButton onClick={() => dismiss(notification.id)} aria-label="Dismiss notification"><X size={15} /></IconButton>
             </article>
           );
         })}
