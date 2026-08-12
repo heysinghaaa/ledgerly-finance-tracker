@@ -49,6 +49,7 @@ import {
 import { CloudSyncControl } from "@/components/cloud-sync-control";
 import { AppSelect } from "@/components/app-select";
 import { AppInput, AppTextarea } from "@/components/app-input";
+import { LedgerlyBrand, LedgerlyMark } from "@/components/ledgerly-logo";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { DateRangeControl } from "@/components/date-range-control";
 import { useNotifications } from "@/components/notifications";
@@ -422,8 +423,7 @@ export default function Home() {
       <aside className={mobileNavOpen ? "sidebar mobile-open" : "sidebar"}>
         <div className="sidebar-header">
           <ButtonBase className="brand-block" onClick={() => navigate("dashboard")} aria-label="Ledgerly home">
-            <span className="brand-mark"><TrendingUp size={18} strokeWidth={2.4} /></span>
-            <span className="brand-copy"><strong>Ledgerly</strong><small>Finance workspace</small></span>
+            <LedgerlyBrand subtitle="Finance workspace" />
           </ButtonBase>
           <IconButton className="icon-button mobile-only" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation">
             <X size={19} />
@@ -1107,7 +1107,7 @@ function InvoiceEditor({ invoice, clients, onCreateClient, onChange, onDelete, o
         </div>
         <div className="form-section"><div className="form-grid"><Field label="Discount"><AppInput min="0" type="number" value={invoice.discount} onChange={(event) => onChange({ ...invoice, discount: Number(event.target.value) })} /></Field><Field label="Notes"><AppTextarea value={invoice.notes} onChange={(event) => onChange({ ...invoice, notes: event.target.value })} /></Field></div></div>
         <div className="invoice-preview">
-          <div className="preview-header"><span className="brand-mark small"><TrendingUp size={13} /></span><div><strong>Ledgerly</strong><small>{invoice.invoiceNumber}</small></div><ButtonBase className="icon-button" type="button" onClick={() => void downloadInvoicePdf(invoice).then(() => notify({ tone: "success", title: "Invoice PDF downloaded" })).catch(() => notify({ tone: "error", title: "PDF download failed", message: "Please try again." }))} aria-label="Download invoice PDF"><Download size={16} /></ButtonBase><ButtonBase className="icon-button" type="button" onClick={() => window.print()} aria-label="Print invoice"><Printer size={16} /></ButtonBase></div>
+          <div className="preview-header"><LedgerlyMark small /><div><strong>Ledgerly</strong><small>{invoice.invoiceNumber}</small></div><ButtonBase className="icon-button" type="button" onClick={() => void downloadInvoicePdf(invoice).then(() => notify({ tone: "success", title: "Invoice PDF downloaded" })).catch(() => notify({ tone: "error", title: "PDF download failed", message: "Please try again." }))} aria-label="Download invoice PDF"><Download size={16} /></ButtonBase><ButtonBase className="icon-button" type="button" onClick={() => window.print()} aria-label="Print invoice"><Printer size={16} /></ButtonBase></div>
           <div className="preview-bill"><span>Bill to</span><strong>{invoice.client.company || invoice.client.name}</strong><small>{invoice.client.name} · {invoice.client.email}</small></div>
           <div className="preview-lines">{invoice.items.map((item) => <div key={item.id}><span>{item.description}<small>{item.quantity} × {formatCurrency(item.rate)}</small></span><strong>{formatCurrency(item.quantity * item.rate)}</strong></div>)}</div>
           <div className="totals-box"><span>Subtotal <strong>{formatCurrency(subtotal)}</strong></span><span>Tax <strong>{formatCurrency(tax)}</strong></span><span>Discount <strong>−{formatCurrency(invoice.discount)}</strong></span><span className="grand-total">Total <strong>{formatCurrency(total)}</strong></span></div>

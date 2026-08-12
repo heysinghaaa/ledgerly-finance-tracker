@@ -27,10 +27,16 @@ export async function downloadInvoicePdf(invoice: Invoice) {
   const document = new jsPDF({ unit: "pt", format: "a4" });
   const left = 48;
   const right = 547;
+  document.setFillColor(99, 91, 255);
+  document.roundedRect(left, 30, 10, 25, 3, 3, "F");
+  document.setFillColor(124, 58, 237);
+  document.roundedRect(left + 7, 43, 10, 12, 3, 3, "F");
+  document.setFillColor(167, 139, 250);
+  document.roundedRect(left + 13, 46, 12, 9, 3, 3, "F");
   document.setTextColor(99, 91, 255);
   document.setFontSize(18);
   document.setFont("helvetica", "bold");
-  document.text("LEDGERLY", left, 54);
+  document.text("LEDGERLY", left + 34, 53);
   document.setTextColor(17, 24, 39);
   document.setFontSize(28);
   document.text("Invoice", left, 102);

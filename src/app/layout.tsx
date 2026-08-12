@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: "Ledgerly | Personal Invoice & Expense Tracker",
   description:
     "A polished personal finance tracker for invoices, expenses, dashboard summaries, and print-ready invoice previews.",
+  icons: {
+    icon: "/ledgerly-icon.svg",
+  },
 };
 
 export default function RootLayout({

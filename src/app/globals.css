@@ -162,7 +162,6 @@ textarea:focus-visible {
 .brand-block {
   display: flex;
   align-items: center;
-  gap: 11px;
   border: 0;
   background: transparent;
   color: var(--text);
@@ -170,22 +169,70 @@ textarea:focus-visible {
   text-align: left;
 }
 
-.brand-mark {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: 8px;
-  background: var(--brand);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--brand) 24%, transparent);
-  color: white;
+.ledgerly-brand {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
 }
 
-.brand-mark.small {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+.ledgerly-mark {
+  position: relative;
+  display: block;
+  width: 32px;
+  height: 34px;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 4px 7px color-mix(in srgb, var(--brand) 24%, transparent));
+}
+
+.ledgerly-mark > span {
+  position: absolute;
+  display: block;
+}
+
+.ledgerly-mark-stem {
+  top: 1px;
+  bottom: 1px;
+  left: 1px;
+  width: 13px;
+  border-radius: 4px;
+  background: var(--brand);
+}
+
+.ledgerly-mark-joint {
+  bottom: 1px;
+  left: 10px;
+  width: 13px;
+  height: 15px;
+  border-radius: 4px;
+  background: var(--brand-hover);
+}
+
+.ledgerly-mark-foot {
+  right: 0;
+  bottom: 1px;
+  width: 15px;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--brand-active);
+}
+
+.ledgerly-mark.small {
+  width: 25px;
+  height: 27px;
+}
+
+.ledgerly-mark.small .ledgerly-mark-stem { width: 10px; border-radius: 3px; }
+.ledgerly-mark.small .ledgerly-mark-joint { left: 8px; width: 10px; height: 12px; border-radius: 3px; }
+.ledgerly-mark.small .ledgerly-mark-foot { width: 12px; height: 9px; border-radius: 3px; }
+
+.ledgerly-wordmark {
+  color: var(--text);
+  font-family: var(--font-geist-sans), "Geist", system-ui, sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 670 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.1 !important;
 }
 
 .brand-copy,
@@ -193,11 +240,6 @@ textarea:focus-visible {
   display: grid;
   gap: 2px;
   min-width: 0;
-}
-
-.brand-copy strong {
-  font-size: 16px;
-  letter-spacing: -0.02em;
 }
 
 .brand-copy small,
