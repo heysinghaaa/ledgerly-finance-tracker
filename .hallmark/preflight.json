@@ -1,0 +1,8 @@
+{
+  "date": "2026-08-17",
+  "font": "Geist Sans",
+  "palette": "Ledgerly light/dark CSS custom properties",
+  "motion": "motion-cut; CSS transitions only",
+  "spacing": "8px application scale",
+  "framework": "Next.js 16 App Router with MUI 9"
+}

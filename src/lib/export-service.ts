@@ -6,8 +6,12 @@ function escapeCsv(value: unknown) {
   return /[",\n]/.test(stringValue) ? `"${stringValue.replaceAll('"', '""')}"` : stringValue;
 }
 
+export function createCsv(headers: string[], rows: unknown[][]) {
+  return [headers, ...rows].map((row) => row.map(escapeCsv).join(",")).join("\n");
+}
+
 export function downloadCsv(filename: string, headers: string[], rows: unknown[][]) {
-  const csv = [headers, ...rows].map((row) => row.map(escapeCsv).join(",")).join("\n");
+  const csv = createCsv(headers, rows);
   const blob = new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");

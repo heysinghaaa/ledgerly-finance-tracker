@@ -1,0 +1,52 @@
+/* Ledgerly portable design tokens — visual values intentionally unchanged in the demo-first pass. */
+:root,
+[data-theme="light"] {
+  --color-background: #f7f9fc;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f5f9;
+  --color-border: #e5e7eb;
+  --color-text: #111827;
+  --color-text-secondary: #6b7280;
+  --color-accent: #635bff;
+  --color-accent-hover: #7c3aed;
+  --color-accent-active: #8b5cf6;
+  --color-accent-soft: #eef0ff;
+  --color-accent-ink: #ffffff;
+  --color-success: #16a34a;
+  --color-info: #2563eb;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --font-display: var(--font-geist-sans), "Geist", system-ui, sans-serif;
+  --font-body: var(--font-geist-sans), "Geist", system-ui, sans-serif;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --dur-fast: 150ms;
+  --dur-default: 220ms;
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-in: cubic-bezier(.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+}
+
+[data-theme="dark"] {
+  --color-background: #0b0b0f;
+  --color-surface: #131318;
+  --color-surface-muted: #1a1a21;
+  --color-border: #27272f;
+  --color-text: #f5f5f7;
+  --color-text-secondary: #9ca3af;
+  --color-accent: #8b5cf6;
+  --color-accent-hover: #7c3aed;
+  --color-accent-active: #a78bfa;
+  --color-accent-soft: #2a1f3d;
+  --color-accent-ink: #0b0b0f;
+  --color-success: #4ade80;
+  --color-info: #60a5fa;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+}

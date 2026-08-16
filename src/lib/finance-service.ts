@@ -9,12 +9,24 @@ import type {
   Expense,
   FinanceState,
   Invoice,
+  InvoiceActivityType,
   InvoiceLineItem,
   PaginatedResult,
   Transaction,
 } from "./types";
 
 const STORAGE_KEY = "ledgerly-finance-state";
+
+const isLegacyDemoClient = (client: Client) =>
+  client.id === "client-003" &&
+  client.name === "Alex Smith" &&
+  client.company === "Personal Project Fund" &&
+  client.email === "self@ledgerly.local";
+
+const migrateLegacyDemoClient = (client: Client): Client =>
+  isLegacyDemoClient(client)
+    ? { ...client, ...initialFinanceState.clients[2] }
+    : client;
 
 const getStorageKey = (userId?: string) =>
   userId ? `${STORAGE_KEY}:user:${userId}` : `${STORAGE_KEY}:anonymous`;
@@ -73,21 +85,29 @@ export function normalizeFinanceState(value: unknown): FinanceState {
   const clientsById = new Map<string, Client>();
 
   for (const client of storedClients) {
-    if (client?.id && client.name && client.email) clientsById.set(client.id, legacyClientToClient(client));
+    if (client?.id && client.name && client.email) {
+      const normalizedClient = legacyClientToClient(client);
+      clientsById.set(client.id, migrateLegacyDemoClient(normalizedClient));
+    }
   }
 
   for (const invoice of rawInvoices) {
     if (invoice?.client?.id && invoice.client.name && invoice.client.email && !clientsById.has(invoice.client.id)) {
-      clientsById.set(invoice.client.id, legacyClientToClient({ ...invoice.client, createdAt: `${invoice.issueDate}T00:00:00.000Z` }));
+      const normalizedClient = legacyClientToClient({ ...invoice.client, createdAt: `${invoice.issueDate}T00:00:00.000Z` });
+      clientsById.set(invoice.client.id, migrateLegacyDemoClient(normalizedClient));
     }
   }
 
   const invoices = rawInvoices.map((invoice) => {
     const linkedClient = clientsById.get(invoice.clientId ?? invoice.client?.id);
+    const activity = Array.isArray(invoice.activity) && invoice.activity.length > 0
+      ? invoice.activity
+      : [{ id: `${invoice.id}-created`, type: "created" as const, occurredAt: `${invoice.issueDate}T00:00:00.000Z` }];
     return {
       ...invoice,
       clientId: linkedClient?.id ?? invoice.clientId ?? null,
       client: linkedClient ? { ...linkedClient } : invoice.client,
+      activity,
     } as Invoice;
   });
 
@@ -134,7 +154,32 @@ export function createInvoice(state: FinanceState, invoice: Invoice): FinanceSta
 }
 
 export function updateInvoice(state: FinanceState, invoice: Invoice): FinanceState {
-  return { ...state, invoices: state.invoices.map((item) => item.id === invoice.id ? invoice : item) };
+  const previous = state.invoices.find((item) => item.id === invoice.id);
+  const statusActivity = previous && previous.status !== invoice.status
+    ? invoice.status === "draft"
+      ? null
+      : invoice.status
+    : null;
+  const nextInvoice = statusActivity
+    ? appendInvoiceActivity(invoice, statusActivity)
+    : invoice;
+  return { ...state, invoices: state.invoices.map((item) => item.id === invoice.id ? nextInvoice : item) };
+}
+
+export function appendInvoiceActivity(invoice: Invoice, type: InvoiceActivityType): Invoice {
+  if (type === "viewed" && invoice.activity.some((event) => event.type === "viewed")) return invoice;
+  const occurredAt = new Date().toISOString();
+  return {
+    ...invoice,
+    activity: [...invoice.activity, { id: `${invoice.id}-${type}-${occurredAt}`, type, occurredAt }],
+  };
+}
+
+export function recordInvoiceActivity(state: FinanceState, invoiceId: string, type: InvoiceActivityType): FinanceState {
+  return {
+    ...state,
+    invoices: state.invoices.map((invoice) => invoice.id === invoiceId ? appendInvoiceActivity(invoice, type) : invoice),
+  };
 }
 
 export function deleteInvoice(state: FinanceState, invoiceId: string): FinanceState {

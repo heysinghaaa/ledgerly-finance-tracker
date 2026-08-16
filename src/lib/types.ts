@@ -1,4 +1,11 @@
 export type InvoiceStatus = "draft" | "sent" | "paid" | "overdue";
+export type InvoiceActivityType = "created" | "sent" | "viewed" | "overdue" | "paid";
+
+export type InvoiceActivity = {
+  id: string;
+  type: InvoiceActivityType;
+  occurredAt: string;
+};
 
 export type ExpenseCategory =
   | "Home"
@@ -44,6 +51,7 @@ export type Invoice = {
   discount: number;
   notes: string;
   items: InvoiceLineItem[];
+  activity: InvoiceActivity[];
 };
 
 export type Expense = {

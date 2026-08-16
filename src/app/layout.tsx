@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light" className={GeistSans.variable} suppressHydrationWarning>
+    <html lang="en" data-theme="light" data-scroll-behavior="smooth" className={GeistSans.variable} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

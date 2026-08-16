@@ -25,13 +25,13 @@ export const initialClients: Client[] = [
   },
   {
     id: "client-003",
-    name: "Alex Smith",
-    company: "Personal Project Fund",
-    email: "self@ledgerly.local",
-    phone: "+91 90000 00000",
+    name: "Kabir Sethi",
+    company: "Fieldnote Labs",
+    email: "billing@fieldnote.example",
+    phone: "+91 98111 70426",
     billingAddress: "C-Scheme, Jaipur, Rajasthan 302001",
     city: "Jaipur",
-    notes: "Internal allocation and side-project tracking.",
+    notes: "Independent product studio. Monthly design and strategy support.",
     createdAt: "2026-03-18T08:00:00.000Z",
   },
 ];
@@ -51,6 +51,11 @@ export const initialInvoices: Invoice[] = [
       { id: "item-001", description: "Dashboard UI implementation", quantity: 1, rate: 42000, taxRate: 18 },
       { id: "item-002", description: "Responsive QA and polish", quantity: 8, rate: 1800, taxRate: 18 },
     ],
+    activity: [
+      { id: "activity-001-created", type: "created", occurredAt: "2026-07-01T09:10:00.000Z" },
+      { id: "activity-001-sent", type: "sent", occurredAt: "2026-07-01T09:18:00.000Z" },
+      { id: "activity-001-viewed", type: "viewed", occurredAt: "2026-07-01T13:42:00.000Z" },
+    ],
   },
   {
     id: "inv-002",
@@ -63,6 +68,12 @@ export const initialInvoices: Invoice[] = [
     discount: 0,
     notes: "Product landing page refresh and analytics-ready sections.",
     items: [{ id: "item-003", description: "Landing page system", quantity: 1, rate: 36000, taxRate: 18 }],
+    activity: [
+      { id: "activity-002-created", type: "created", occurredAt: "2026-06-18T10:00:00.000Z" },
+      { id: "activity-002-sent", type: "sent", occurredAt: "2026-06-18T10:16:00.000Z" },
+      { id: "activity-002-viewed", type: "viewed", occurredAt: "2026-06-19T04:28:00.000Z" },
+      { id: "activity-002-overdue", type: "overdue", occurredAt: "2026-07-06T00:00:00.000Z" },
+    ],
   },
   {
     id: "inv-003",
@@ -73,8 +84,14 @@ export const initialInvoices: Invoice[] = [
     dueDate: "2026-07-08",
     status: "paid",
     discount: 500,
-    notes: "Monthly side-project allocation and internal tracking.",
-    items: [{ id: "item-004", description: "Project savings transfer", quantity: 1, rate: 18000, taxRate: 0 }],
+    notes: "Monthly product design retainer for Fieldnote Labs.",
+    items: [{ id: "item-004", description: "Product design retainer", quantity: 1, rate: 18000, taxRate: 0 }],
+    activity: [
+      { id: "activity-003-created", type: "created", occurredAt: "2026-07-08T08:00:00.000Z" },
+      { id: "activity-003-sent", type: "sent", occurredAt: "2026-07-08T08:12:00.000Z" },
+      { id: "activity-003-viewed", type: "viewed", occurredAt: "2026-07-08T09:05:00.000Z" },
+      { id: "activity-003-paid", type: "paid", occurredAt: "2026-07-08T15:32:00.000Z" },
+    ],
   },
 ];
 
